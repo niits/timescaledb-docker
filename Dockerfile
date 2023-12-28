@@ -43,23 +43,23 @@ ARG TS_VERSION
 RUN set -ex \
     && apk add libssl1.1 \
     && apk add --no-cache --virtual .fetch-deps \
-                ca-certificates \
-                git \
-                openssl \
-                openssl-dev \
-                tar \
+    ca-certificates \
+    git \
+    openssl \
+    openssl-dev \
+    tar \
     && mkdir -p /build/ \
     && git clone https://github.com/timescale/timescaledb /build/timescaledb \
     \
     && apk add --no-cache --virtual .build-deps \
-                coreutils \
-                dpkg-dev dpkg \
-                gcc \
-                krb5-dev \
-                libc-dev \
-                make \
-                cmake \
-                util-linux-dev \
+    coreutils \
+    dpkg-dev dpkg \
+    gcc \
+    krb5-dev \
+    libc-dev \
+    make \
+    cmake \
+    util-linux-dev \
     \
     # Build current version \
     && cd /build/timescaledb && rm -fr build \
@@ -72,3 +72,13 @@ RUN set -ex \
     && apk del .fetch-deps .build-deps \
     && rm -rf /build \
     && sed -r -i "s/[#]*\s*(shared_preload_libraries)\s*=\s*'(.*)'/\1 = 'timescaledb,\2'/;s/,'/'/" /usr/local/share/postgresql/postgresql.conf.sample
+
+RUN apk add git  build-base clang15 llvm15-dev && \
+    cd /tmp && \
+    git clone --branch v0.5.1 https://github.com/pgvector/pgvector.git && \
+    cd pgvector && \
+    make && \
+    make install && \
+    rm -rf /tmp/pgvector && \
+    apk del git build-base clang15 llvm15-dev && \
+    rm -rf /var/cache/apk/*
